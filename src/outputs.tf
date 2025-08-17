@@ -84,6 +84,18 @@ output "route_tables" {
   description = "Route tables info map"
 }
 
+output "named_route_tables" {
+  value = {
+    public : {
+      ids : module.subnets.named_public_route_table_ids_map
+    }
+    private : {
+      ids : module.subnets.named_private_route_table_ids_map
+    }
+  }
+  description = "Route table info map, keyed by subnets_per_az_names. If subnets_per_az_names is not set, items are groups by key 'common'"
+}
+
 output "nat_gateway_ids" {
   value       = module.subnets.nat_gateway_ids
   description = "NAT Gateway IDs"
