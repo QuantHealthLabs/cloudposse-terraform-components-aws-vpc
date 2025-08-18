@@ -71,6 +71,55 @@ locals {
     # private subnets map
     subnet_ids          = var.vpc_endpoints_subnet_name == "" ? module.subnets.private_subnet_ids : module.subnets.named_private_subnets_map[var.vpc_endpoints_subnet_name]
   } }
+
+  # # ---
+  #
+  # # Normalize selector ("" = not set)
+  # vpc_endpoints_subnet_name_normalized = trimspace(var.vpc_endpoints_subnet_name != null ? var.vpc_endpoints_subnet_name : "")
+  #
+  # # Compute candidate IDs (may be unknown at plan if subnets are created here)
+  # route_table_ids_candidate = length(local.vpc_endpoints_subnet_name_normalized) == 0 ? try(module.subnets.private_route_table_ids, []) : try(flatten(lookup(module.subnets.named_private_route_table_ids_map, local.vpc_endpoints_subnet_name_normalized, [])), [])
+  #
+  # subnet_ids_candidate = length(local.vpc_endpoints_subnet_name_normalized) == 0 ? try(module.subnets.private_subnet_ids, []) : try(flatten(lookup(module.subnets.named_private_subnets_map, local.vpc_endpoints_subnet_name_normalized, [])), [])
+  #
+  # # Are the candidate lists actually indexable (plan-known)?
+  # route_table_ids_known = can(local.route_table_ids_candidate[0])
+  # subnet_ids_known      = can(local.subnet_ids_candidate[0])
+  #
+  # # Base maps (constants only) — plan-known regardless of VPC/subnets creation
+  # # Required attributes for the Cloud Posse submodule are provided with safe defaults
+  # gateway_endpoints_base = {
+  #   for svc in toset(var.gateway_vpc_endpoints) :
+  #   svc => {
+  #     name   = svc
+  #     policy = null
+  #   }
+  # }
+  #
+  # interface_endpoints_base = {
+  #   for svc in toset(var.interface_vpc_endpoints) :
+  #   svc => {
+  #     name                 = svc
+  #     policy               = null
+  #     private_dns_enabled  = true
+  #     security_group_ids   = [] # keep constant; don't reference module outputs here
+  #   }
+  # }
+  #
+  # # Final maps:
+  # # - If IDs are plan-known, include them.
+  # # - If IDs are NOT plan-known, pass {} so the submodule skips its data/associations.
+  # gateway_endpoints_final = local.route_table_ids_known ? {
+  #   for name, cfg in local.gateway_endpoints_base :
+  #   name => merge(cfg, { route_table_ids = tolist(local.route_table_ids_candidate) })
+  # } : {}
+  #
+  # interface_endpoints_final = local.subnet_ids_known ? {
+  #   for name, cfg in local.interface_endpoints_base :
+  #   name => merge(cfg, { subnet_ids = tolist(local.subnet_ids_candidate) })
+  # } : {}
+  #
+  # # ---
 }
 
 module "utils" {
@@ -139,6 +188,14 @@ module "vpc_endpoints" {
   enabled = local.enabled && (length(var.interface_vpc_endpoints) + length(var.gateway_vpc_endpoints)) > 0
 
   vpc_id                  = module.vpc.vpc_id
+
+  # # ---
+  #
+  # gateway_vpc_endpoints   = local.gateway_endpoints_final
+  # interface_vpc_endpoints = local.interface_endpoints_final
+  #
+  # #---
+
   gateway_vpc_endpoints   = local.gateway_endpoint_map
   interface_vpc_endpoints = local.interface_endpoint_map
 
