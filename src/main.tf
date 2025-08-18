@@ -142,6 +142,9 @@ module "vpc_endpoints" {
   gateway_vpc_endpoints   = local.gateway_endpoint_map
   interface_vpc_endpoints = local.interface_endpoint_map
 
+  # FIXME localhost
+  post_creation_refresh_delay = "1s"
+
   context = module.this.context
 }
 
