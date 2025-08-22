@@ -32,6 +32,22 @@ output "subnets" {
   description = "Subnets info map"
 }
 
+output "named_subnets" {
+  value = {
+    public : {
+      ids : module.subnets.named_public_subnets_map
+    }
+    private : {
+      ids : module.subnets.named_private_subnets_map
+    }
+  }
+
+  description = <<-EOT
+    Subnets info map, keyed by subnets_per_az_names.
+    If subnets_per_az_names is not set, items are grouped by an empty key '""'
+    EOT
+}
+
 output "vpc_default_network_acl_id" {
   value       = module.vpc.vpc_default_network_acl_id
   description = "The ID of the network ACL created by default on VPC creation"
@@ -93,7 +109,11 @@ output "named_route_tables" {
       ids : module.subnets.named_private_route_table_ids_map
     }
   }
-  description = "Route table info map, keyed by subnets_per_az_names. If subnets_per_az_names is not set, items are groups by key 'common'"
+
+  description = <<-EOT
+    Route table info map, keyed by subnets_per_az_names.
+    If subnets_per_az_names is not set, items are groups by an empty key '""'
+    EOT
 }
 
 output "nat_gateway_ids" {
