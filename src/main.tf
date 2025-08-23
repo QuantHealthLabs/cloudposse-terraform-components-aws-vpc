@@ -149,8 +149,9 @@ module "vpc_endpoints" {
 }
 
 module "subnets" {
-  source  = "cloudposse/dynamic-subnets/aws"
-  version = "2.4.2"
+  source = "git::https://github.com/QuantHealthLabs/cloudposse-terraform-aws-dynamic-subnets.git?ref=main"
+  # source  = "cloudposse/dynamic-subnets/aws"
+  # version = "2.4.2"
 
   availability_zones              = local.availability_zones
   availability_zone_ids           = local.availability_zone_ids

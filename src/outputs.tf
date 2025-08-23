@@ -47,6 +47,8 @@ output "named_subnets" {
     EOT
 }
 
+# output subnets_stat
+
 output "vpc_default_network_acl_id" {
   value       = module.vpc.vpc_default_network_acl_id
   description = "The ID of the network ACL created by default on VPC creation"
