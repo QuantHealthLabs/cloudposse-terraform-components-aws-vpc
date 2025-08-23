@@ -34,20 +34,18 @@ output "subnets" {
 
 output "named_subnets" {
   value = {
-    public : {
-      ids : module.subnets.named_public_subnets_map
-    }
-    private : {
-      ids : module.subnets.named_private_subnets_map
-    }
+    for scope, obj in {
+      public : module.subnets.named_public_subnets_map
+      private : module.subnets.named_private_subnets_map
+    } :
+    scope => obj
   }
 
   description = <<-EOT
     Subnets info map, keyed by subnets_per_az_names.
-    If subnets_per_az_names is not set, items are grouped by an empty key '""'
+    If subnets_per_az_names is not set, items are grouped by key 'common'
     EOT
 }
-
 
 output "vpc_default_network_acl_id" {
   value       = module.vpc.vpc_default_network_acl_id
@@ -103,17 +101,16 @@ output "route_tables" {
 
 output "named_route_tables" {
   value = {
-    public : {
-      ids : module.subnets.named_public_route_table_ids_map
-    }
-    private : {
-      ids : module.subnets.named_private_route_table_ids_map
-    }
+    for scope, obj in {
+      public  = module.subnets.named_public_route_table_ids_map
+      private = module.subnets.named_private_route_table_ids_map
+    } :
+    scope => obj
   }
 
   description = <<-EOT
     Route table info map, keyed by subnets_per_az_names.
-    If subnets_per_az_names is not set, items are grouped by an empty key '""'
+    If subnets_per_az_names is not set, items are grouped by key 'common'
   EOT
 }
 
