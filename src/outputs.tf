@@ -44,10 +44,15 @@ output "named_subnets" {
   description = <<-EOT
     Subnets info map, keyed by subnets_per_az_names.
     If subnets_per_az_names is not set, items are grouped by key 'common'
-    EOT
+  EOT
 }
 
-# output subnets_stat
+output "named_subnets_stats" {
+  value = {
+    public : module.subnets.named_public_subnets_stats_map
+    private : module.subnets.named_private_subnets_stats_map
+  }
+}
 
 output "vpc_default_network_acl_id" {
   value       = module.vpc.vpc_default_network_acl_id
